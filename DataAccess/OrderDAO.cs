@@ -60,7 +60,7 @@ namespace DataAccess
                 {
                     if (_order != null)
                     {
-                        db.TblOrders.Update(_order);
+                        db.TblOrders.Update(t);
                         db.SaveChanges();
                     }
                     else

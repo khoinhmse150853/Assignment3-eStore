@@ -57,5 +57,77 @@ namespace eStore.Controllers
                 return View();
             }
         }
+        // GET: ProductController/Edit/5
+        public ActionResult Edit(int? id)
+        {
+            re = new OrderRepository();
+            if (id == null)
+            {
+                return NotFound();
+            }
+            var order = re.GetOrdersById(GetConnectionString(), id.Value);
+            if (order == null)
+            {
+                return NotFound();
+            }
+            return View(order);
+        }
+        // POST: ProductController/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Edit(int OrderId, TblOrder order)
+        {
+            re = new OrderRepository();
+            try
+            {
+                if (OrderId != order.OrderId)
+                {
+                    return NotFound();
+                }
+                if (ModelState.IsValid)
+                {
+                    re.Update(GetConnectionString(), order);
+                }
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Message = ex.Message;
+                return View();
+            }
+        }
+        // GET: ProductController/Delete/5
+        public ActionResult Delete(int? id)
+        {
+            re = new OrderRepository();
+            if (id == null)
+            {
+                return NotFound();
+            }
+            var order = re.GetOrdersById(GetConnectionString(), id.Value);
+            if (order == null)
+            {
+                return NotFound();
+            }
+            return View(order);
+        }
+
+        // POST: ProductController/Delete/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Delete(int OrderId)
+        {
+            re = new OrderRepository();
+            try
+            {
+                re.Remove(GetConnectionString(), OrderId);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Message = ex.Message;
+                return View();
+            }
+        }
     }
 }
