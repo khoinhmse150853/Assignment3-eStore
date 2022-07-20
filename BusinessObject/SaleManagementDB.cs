@@ -9,9 +9,11 @@ namespace BusinessObject
 {
     public partial class SaleManagementContext : DbContext
     {
+        public static string GetConn { get; set; }
         public SaleManagementContext(string conn)
         {
             this.Database.SetConnectionString(conn);
+            GetConn = conn;
         }
     }
 }

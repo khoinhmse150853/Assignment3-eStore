@@ -1,5 +1,4 @@
 ﻿using BusinessObject;
-using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace DataAccess
 {
-    public class OrderDAO
+    public class MemberDAO
     {
-        private static OrderDAO instance = null;
+        private static MemberDAO instance = null;
         private static object instanceLook = new object();
 
-        public static OrderDAO Instance
+        public static MemberDAO Instance
         {
             get
             {
@@ -21,74 +20,61 @@ namespace DataAccess
                 {
                     if (instance == null)
                     {
-                        instance = new OrderDAO();
+                        instance = new MemberDAO();
                     }
                     return instance;
                 }
             }
         }
 
-        public List<TblOrder> GetOrdersList()
+        public List<TblMember> GetMemberList()
         {
             using (var db = new SaleManagementContext(SaleManagementContext.GetConn))
             {
-                return db.TblOrders.Include(x => x.Member).ToList();
+                return db.TblMembers.ToList();
             }
         }
 
-        public List<TblOrder> GetOrders(DateTime startDate, DateTime endDate)
+        public List<TblMember> GetMemberListByUser(int memberId)
         {
-            List<TblOrder> orders = null;
+            using (var db = new SaleManagementContext(SaleManagementContext.GetConn))
+            {
+                return db.TblMembers.Where(X => X.MemberId == memberId).ToList();
+            }
+        }
 
+        public TblMember GetMemberByID(int memberId)
+        {
+            TblMember member = null;
             try
             {
                 using (var db = new SaleManagementContext(SaleManagementContext.GetConn))
                 {
-                    orders = db.TblOrders.Where(or =>
-                        DateTime.Compare(or.OrderDate, startDate) >= 0 &&
-                        DateTime.Compare(or.OrderDate, endDate) <= 0).ToList();
-                }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-
-            return orders;
-        }
-
-        public TblOrder GetOrderById(int Id)
-        {
-            TblOrder order = null;
-            try
-            {
-                using (var db = new SaleManagementContext(SaleManagementContext.GetConn))
-                {
-                    order = db.TblOrders.Include(x => x.Member).SingleOrDefault(p => p.OrderId == Id);
+                    member = db.TblMembers.SingleOrDefault(p => p.MemberId == memberId);
                 };
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
-            return order;
+            return member;
         }
 
-        public void AddNew(TblOrder order)
+        public void Update(TblMember member)
         {
             try
             {
-                TblOrder _order = GetOrderById(order.OrderId);
+                TblMember _member = GetMemberByID(member.MemberId);
                 using (var db = new SaleManagementContext(SaleManagementContext.GetConn))
                 {
-                    if (_order == null)
+                    if (_member != null)
                     {
-                        db.TblOrders.Add(order);
+                        db.TblMembers.Update(member);
                         db.SaveChanges();
                     }
                     else
                     {
-                        throw new Exception("The order ia already exists");
+                        throw new Exception("The member does not already exists");
                     }
                 };
             }
@@ -98,21 +84,21 @@ namespace DataAccess
             }
         }
 
-        public void Update(TblOrder order)
+        public void AddNew(TblMember member)
         {
             try
             {
-                TblOrder _order = GetOrderById(order.OrderId);
+                TblMember _member = GetMemberByID(member.MemberId);
                 using (var db = new SaleManagementContext(SaleManagementContext.GetConn))
                 {
-                    if (_order != null)
+                    if (_member == null)
                     {
-                        db.TblOrders.Update(order);
+                        db.TblMembers.Add(member);
                         db.SaveChanges();
                     }
                     else
                     {
-                        throw new Exception("The order does not already exists");
+                        throw new Exception("The member is already exists");
                     }
                 };
             }
@@ -122,21 +108,21 @@ namespace DataAccess
             }
         }
 
-        public void Remove(int orderId)
+        public void Remove(int memberId)
         {
             try
             {
-                TblOrder _order = GetOrderById(orderId);
+                TblMember _member = GetMemberByID(memberId);
                 using (var db = new SaleManagementContext(SaleManagementContext.GetConn))
                 {
-                    if (_order != null)
+                    if (_member != null)
                     {
-                        db.TblOrders.Remove(_order);
+                        db.TblMembers.Remove(_member);
                         db.SaveChanges();
                     }
                     else
                     {
-                        throw new Exception("The order does not already exists");
+                        throw new Exception("The member does not already exists");
                     }
                 };
             }

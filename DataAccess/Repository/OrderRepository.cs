@@ -9,34 +9,34 @@ namespace DataAccess.Repository
 {
     public class OrderRepository : IOrderRepository
     {
-        public void AddNew(string cs, TblOrder order)
+        public void AddNew(TblOrder order)
         {
-            OrderDAO.Instance.AddNew(cs, order);
+            OrderDAO.Instance.AddNew(order);
         }
 
-        public TblOrder GetOrdersById(string cs, int Id)
+        public TblOrder GetOrderById(int orderId)
         {
-            return OrderDAO.Instance.GetOrdersByID(cs, Id);
+            return OrderDAO.Instance.GetOrderById(orderId);
         }
 
-        public IEnumerable<TblOrder> GetOrdersList(string cs)
+        public IEnumerable<TblOrder> GetOrdersList()
         {
-            return OrderDAO.Instance.GetAllOrders(cs);
+            return OrderDAO.Instance.GetOrdersList();
         }
 
-        public void Remove(string cs, int orderId)
+        public IEnumerable<TblOrder> MakeReportStatistic(DateTime startDate, DateTime endDate)
         {
-            OrderDAO.Instance.Remove(cs, orderId);
+            return OrderDAO.Instance.GetOrders(startDate, endDate);
         }
 
-        public IEnumerable<TblOrder> SearchOrders(string cs, int id)
+        public void Remove(int orderId)
         {
-            return OrderDAO.Instance.SearchOrder(cs,id);
+            OrderDAO.Instance.Remove(orderId);
         }
 
-        public void Update(string cs, TblOrder order)
+        public void Update(TblOrder order)
         {
-            OrderDAO.Instance.Update(cs, order);
+            OrderDAO.Instance.Update(order);
         }
     }
 }
