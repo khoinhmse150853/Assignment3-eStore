@@ -27,22 +27,30 @@ namespace DataAccess
             }
         }
 
-        public List<TblMember> GetMembersList(string cs)
+        public List<TblMember> GetMemberList()
         {
-            using (var db = new SaleManagementContext(cs))
+            using (var db = new SaleManagementContext(SaleManagementContext.GetConn))
             {
                 return db.TblMembers.ToList();
             }
         }
 
-        public TblMember GetMemberByID(string cs, int memberId)
+        public List<TblMember> GetMemberListByUser(int memberId)
+        {
+            using (var db = new SaleManagementContext(SaleManagementContext.GetConn))
+            {
+                return db.TblMembers.Where(X => X.MemberId == memberId).ToList();
+            }
+        }
+
+        public TblMember GetMemberByID(int memberId)
         {
             TblMember member = null;
             try
             {
-                using (var db = new SaleManagementContext(cs))
+                using (var db = new SaleManagementContext(SaleManagementContext.GetConn))
                 {
-                    member = db.TblMembers.SingleOrDefault(m => m.MemberId == memberId);
+                    member = db.TblMembers.SingleOrDefault(p => p.MemberId == memberId);
                 };
             }
             catch (Exception ex)
@@ -52,29 +60,12 @@ namespace DataAccess
             return member;
         }
 
-        public List<TblMember> SearchMembers(string cs, int id)
-        {
-            List<TblMember> members = null;
-            try
-            {
-                using (var db = new SaleManagementContext(cs))
-                {
-                    members = db.TblMembers.Where(m => m.MemberId.Equals(id)).ToList();
-                };
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-            return members;
-        }
-
-        public void Update(string cs, TblMember member)
+        public void Update(TblMember member)
         {
             try
             {
-                TblMember _member = GetMemberByID(cs, member.MemberId);
-                using (var db = new SaleManagementContext(cs))
+                TblMember _member = GetMemberByID(member.MemberId);
+                using (var db = new SaleManagementContext(SaleManagementContext.GetConn))
                 {
                     if (_member != null)
                     {
@@ -93,12 +84,12 @@ namespace DataAccess
             }
         }
 
-        public void AddNew(string cs, TblMember member)
+        public void AddNew(TblMember member)
         {
             try
             {
-                TblMember _member = GetMemberByID(cs, member.MemberId);
-                using (var db = new SaleManagementContext(cs))
+                TblMember _member = GetMemberByID(member.MemberId);
+                using (var db = new SaleManagementContext(SaleManagementContext.GetConn))
                 {
                     if (_member == null)
                     {
@@ -107,7 +98,7 @@ namespace DataAccess
                     }
                     else
                     {
-                        throw new Exception("The member ia already exists");
+                        throw new Exception("The member is already exists");
                     }
                 };
             }
@@ -117,12 +108,12 @@ namespace DataAccess
             }
         }
 
-        public void Remove(string cs, int memberId)
+        public void Remove(int memberId)
         {
             try
             {
-                TblMember _member = GetMemberByID(cs, memberId);
-                using (var db = new SaleManagementContext(cs))
+                TblMember _member = GetMemberByID(memberId);
+                using (var db = new SaleManagementContext(SaleManagementContext.GetConn))
                 {
                     if (_member != null)
                     {

@@ -9,34 +9,39 @@ namespace DataAccess.Repository
 {
     public class ProductRepository : IProductRepository
     {
-        public void AddNew(string cs, TblProduct product)
+        public void AddNew(TblProduct product)
         {
-            ProductDAO.Instance.AddNew(cs, product);
+            ProductDAO.Instance.AddNew(product);
         }
 
-        public TblProduct GetProductsById(string cs, int Id)
+        public TblProduct GetProductsById(int Id)
         {
-            return ProductDAO.Instance.GetProductByID(cs, Id);
+            return ProductDAO.Instance.GetProductByID(Id);
         }
 
-        public IEnumerable<TblProduct> GetProductsList(string cs)
+        public IEnumerable<TblProduct> GetProductsList()
         {
-            return ProductDAO.Instance.GetProductsList(cs);
+            return ProductDAO.Instance.GetProductsList();
         }
 
-        public void Remove(string cs, int productId)
+        public void Remove(int productId)
         {
-            ProductDAO.Instance.Remove(cs, productId);
+            ProductDAO.Instance.Remove(productId);
         }
 
-        public IEnumerable<TblProduct> SearchProducts(string cs, string name, int from, int to)
+        public IEnumerable<TblProduct> SearchProductsByProductName(string name)
         {
-            return ProductDAO.Instance.SearchProducts(cs, name, from, to);
+            return ProductDAO.Instance.SearchProductsByProductName(name);
         }
 
-        public void Update(string cs, TblProduct product)
+        public IEnumerable<TblProduct> SearchProductsByUnitPrice(string name, int from, int to)
         {
-            ProductDAO.Instance.Update(cs, product);
+            return ProductDAO.Instance.SearchProductsByUnitPirce(name, from, to);
+        }
+
+        public void Update(TblProduct product)
+        {
+            ProductDAO.Instance.Update(product);
         }
     }
 }

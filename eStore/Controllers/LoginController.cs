@@ -1,11 +1,15 @@
 ﻿using BusinessObject;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace eStore.Controllers
@@ -23,13 +27,14 @@ namespace eStore.Controllers
         }
 
         // GET: LoginController
-        public ActionResult Index()
+        public ActionResult Index(string returnUrl)
         {
+            ViewData["ReturnUrl"] = returnUrl;
             return View();
         }
 
         [HttpPost]
-        public ActionResult Index(string email, string password)
+        public async Task<IActionResult> Index(string email, string password, string returnUrl)
         {
             String Email, Password;
             string cs = GetConnectionString();
@@ -43,10 +48,27 @@ namespace eStore.Controllers
                 Email = config["account:defaultAccount:email"];
                 Password = config["account:defaultAccount:password"];
             }
-            if(email.Equals(Email) && password.Equals(Password))
+            if (email.Equals(Email) && password.Equals(Password))
             {
+                var db = new SaleManagementContext(cs);
+                TblMember user = new TblMember(email, password);
+                HttpContext.Session.SetString("account", JsonConvert.SerializeObject(user));
                 HttpContext.Session.SetString("Role", "AD");
-                return RedirectToAction("Index", "Home");
+                var claims = new List<Claim>();
+                claims.Add(new Claim("username", user.Email));
+                claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Email));
+                claims.Add(new Claim(ClaimTypes.Role, "Admin"));
+                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+                await HttpContext.SignInAsync(claimsPrincipal);
+                if (returnUrl != null)
+                {
+                    return Redirect(returnUrl);
+                }
+                else
+                {
+                    return RedirectToAction("Index", "Home");
+                }
             }
             else
             {
@@ -61,8 +83,23 @@ namespace eStore.Controllers
                     }
                     else
                     {
+                        HttpContext.Session.SetString("account", JsonConvert.SerializeObject(user));
                         HttpContext.Session.SetString("Role", "US");
-                        return RedirectToAction("Index", "Home");
+                        var claims = new List<Claim>();
+                        claims.Add(new Claim("username", user.Email));
+                        claims.Add(new Claim(ClaimTypes.NameIdentifier, user.Email));
+                        claims.Add(new Claim(ClaimTypes.Role, "User"));
+                        var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                        var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+                        await HttpContext.SignInAsync(claimsPrincipal);
+                        if (returnUrl != null)
+                        {
+                            return Redirect(returnUrl);
+                        }
+                        else
+                        {
+                            return RedirectToAction("Index", "Home");
+                        }
                     }
                 }
             }

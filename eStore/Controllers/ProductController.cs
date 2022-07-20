@@ -1,5 +1,6 @@
 ﻿using BusinessObject;
 using DataAccess.Repository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
@@ -15,21 +16,11 @@ namespace eStore.Controllers
     {
         IProductRepository productRepository;
 
-        private string GetConnectionString()
-        {
-            IConfiguration config = new ConfigurationBuilder()
-                                    .SetBasePath(Directory.GetCurrentDirectory())
-                                    .AddJsonFile("appsettings.json", true, true)
-                                    .Build();
-            var strConn = config["ConnectionStrings:SalesManagementDB"];
-            return strConn;
-        }
-
         // GET: ProductController
         public ActionResult Index()
         {
             productRepository = new ProductRepository();
-            var model = productRepository.GetProductsList(GetConnectionString());
+            var model = productRepository.GetProductsList();
             return View(model);
         }
 
@@ -41,8 +32,8 @@ namespace eStore.Controllers
             {
                 return NotFound();
             }
-            var product = productRepository.GetProductsById(GetConnectionString(), id.Value);
-            if(product == null)
+            var product = productRepository.GetProductsById(id.Value);
+            if (product == null)
             {
                 return NotFound();
             }
@@ -52,7 +43,7 @@ namespace eStore.Controllers
         public ActionResult Search(string? op, string? search, int? from, int? to)
         {
             productRepository = new ProductRepository();
-            if (search == null || from == null || to == null)
+            if (search == null)
             {
                 return NotFound();
             }
@@ -60,22 +51,40 @@ namespace eStore.Controllers
             {
                 if (op.Equals("Search"))
                 {
-                    var product = productRepository.SearchProducts(GetConnectionString(), search, from.Value, to.Value);
-                    if (product == null)
+                    if (from != null && to != null)
                     {
-                        return NotFound();
+                        var product = productRepository.SearchProductsByUnitPrice(search, from.Value, to.Value);
+                        if (product == null)
+                        {
+                            return NotFound();
+                        }
+                        else
+                        {
+                            ViewBag.Search = search;
+                            ViewBag.From = from;
+                            ViewBag.To = to;
+                            return View("Index", product);
+                        }
                     }
                     else
                     {
-                        ViewBag.Search = search;
-                        ViewBag.From = from;
-                        ViewBag.To = to;
-                        return View("Index", product);
+                        var product = productRepository.SearchProductsByProductName(search);
+                        if (product == null)
+                        {
+                            return NotFound();
+                        }
+                        else
+                        {
+                            ViewBag.Search = search;
+                            ViewBag.From = from;
+                            ViewBag.To = to;
+                            return View("Index", product);
+                        }
                     }
                 }
                 else
                 {
-                    var product = productRepository.GetProductsList(GetConnectionString());
+                    var product = productRepository.GetProductsList();
                     ViewBag.Search = "";
                     ViewBag.From = "";
                     ViewBag.To = "";
@@ -84,6 +93,7 @@ namespace eStore.Controllers
             }
         }
 
+        [Authorize(Roles = "Admin")]
         // GET: ProductController/Create
         public ActionResult Create()
         {
@@ -100,17 +110,18 @@ namespace eStore.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    productRepository.AddNew(GetConnectionString(), product);
+                    productRepository.AddNew(product);
                 }
                 return RedirectToAction(nameof(Index));
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 ViewBag.Message = ex.Message;
                 return View();
             }
         }
 
+        [Authorize(Roles = "Admin")]
         // GET: ProductController/Edit/5
         public ActionResult Edit(int? id)
         {
@@ -119,14 +130,15 @@ namespace eStore.Controllers
             {
                 return NotFound();
             }
-            var product = productRepository.GetProductsById(GetConnectionString(), id.Value);
-            if(product == null)
+            var product = productRepository.GetProductsById(id.Value);
+            if (product == null)
             {
                 return NotFound();
             }
             return View(product);
         }
 
+        [Authorize(Roles = "Admin")]
         // POST: ProductController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -135,23 +147,25 @@ namespace eStore.Controllers
             productRepository = new ProductRepository();
             try
             {
-                if(ProductId != product.ProductId)
+                if (ProductId != product.ProductId)
                 {
                     return NotFound();
                 }
                 if (ModelState.IsValid)
                 {
-                    productRepository.Update(GetConnectionString(), product);
+                    productRepository.Update(product);
                 }
                 return RedirectToAction(nameof(Index));
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 ViewBag.Message = ex.Message;
                 return View();
             }
         }
 
+
+        [Authorize(Roles = "Admin")]
         // GET: ProductController/Delete/5
         public ActionResult Delete(int? id)
         {
@@ -160,7 +174,7 @@ namespace eStore.Controllers
             {
                 return NotFound();
             }
-            var product = productRepository.GetProductsById(GetConnectionString(), id.Value);
+            var product = productRepository.GetProductsById(id.Value);
             if (product == null)
             {
                 return NotFound();
@@ -168,6 +182,7 @@ namespace eStore.Controllers
             return View(product);
         }
 
+        [Authorize(Roles = "Admin")]
         // POST: ProductController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -176,10 +191,10 @@ namespace eStore.Controllers
             productRepository = new ProductRepository();
             try
             {
-                productRepository.Remove(GetConnectionString(), ProductId);
+                productRepository.Remove(ProductId);
                 return RedirectToAction(nameof(Index));
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 ViewBag.Message = ex.Message;
                 return View();

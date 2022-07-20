@@ -27,37 +27,37 @@ namespace DataAccess
             }
         }
 
-        public List<TblProduct> GetProductsList(string cs)
+        public List<TblProduct> GetProductsList()
         {
-            using(var db = new SaleManagementContext(cs))
+            using (var db = new SaleManagementContext(SaleManagementContext.GetConn))
             {
                 return db.TblProducts.ToList();
             }
         }
 
-        public TblProduct GetProductByID(string cs, int productId)
+        public TblProduct GetProductByID(int productId)
         {
             TblProduct product = null;
             try
             {
-                using (var db = new SaleManagementContext(cs))
+                using (var db = new SaleManagementContext(SaleManagementContext.GetConn))
                 {
                     product = db.TblProducts.SingleOrDefault(p => p.ProductId == productId);
                 };
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
             return product;
         }
 
-        public List<TblProduct> SearchProducts (string cs, string name, int from, int to)
+        public List<TblProduct> SearchProductsByUnitPirce(string name, int from, int to)
         {
             List<TblProduct> products = null;
             try
             {
-                using (var db = new SaleManagementContext(cs))
+                using (var db = new SaleManagementContext(SaleManagementContext.GetConn))
                 {
                     products = db.TblProducts.Where(p => p.ProductName.Contains(name) && p.UnitPrice <= to && p.UnitPrice >= from).ToList();
                 };
@@ -69,14 +69,31 @@ namespace DataAccess
             return products;
         }
 
-        public void Update(string cs, TblProduct product)
+        public List<TblProduct> SearchProductsByProductName(string name)
+        {
+            List<TblProduct> products = null;
+            try
+            {
+                using (var db = new SaleManagementContext(SaleManagementContext.GetConn))
+                {
+                    products = db.TblProducts.Where(p => p.ProductName.Contains(name)).ToList();
+                };
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.Message);
+            }
+            return products;
+        }
+
+        public void Update(TblProduct product)
         {
             try
             {
-                TblProduct _product = GetProductByID(cs, product.ProductId);
-                using (var db = new SaleManagementContext(cs))
+                TblProduct _product = GetProductByID(product.ProductId);
+                using (var db = new SaleManagementContext(SaleManagementContext.GetConn))
                 {
-                    if(_product != null)
+                    if (_product != null)
                     {
                         db.TblProducts.Update(product);
                         db.SaveChanges();
@@ -93,12 +110,12 @@ namespace DataAccess
             }
         }
 
-        public void AddNew(string cs, TblProduct product)
+        public void AddNew(TblProduct product)
         {
             try
             {
-                TblProduct _product = GetProductByID(cs, product.ProductId);
-                using (var db = new SaleManagementContext(cs))
+                TblProduct _product = GetProductByID(product.ProductId);
+                using (var db = new SaleManagementContext(SaleManagementContext.GetConn))
                 {
                     if (_product == null)
                     {
@@ -117,12 +134,12 @@ namespace DataAccess
             }
         }
 
-        public void Remove(string cs, int productId)
+        public void Remove(int productId)
         {
             try
             {
-                TblProduct _product = GetProductByID(cs, productId);
-                using (var db = new SaleManagementContext(cs))
+                TblProduct _product = GetProductByID(productId);
+                using (var db = new SaleManagementContext(SaleManagementContext.GetConn))
                 {
                     if (_product != null)
                     {

@@ -9,35 +9,34 @@ namespace DataAccess.Repository
 {
     public class MemberRepository : IMemberRepository
     {
-        public void AddNew(string cs, TblMember member)
+        public void AddNew(TblMember member)
         {
-            MemberDAO.Instance.AddNew(cs, member);
+            MemberDAO.Instance.AddNew(member);
         }
 
-        public TblMember GetMembersById(string cs, int Id)
+        public TblMember GetMembersById(int Id)
         {
-            return MemberDAO.Instance.GetMemberByID(cs, Id);
+            return MemberDAO.Instance.GetMemberByID(Id);
         }
 
-        public IEnumerable<TblMember> GetMembersList(string cs)
+        public IEnumerable<TblMember> GetMembersList()
         {
-            return MemberDAO.Instance.GetMembersList(cs);
+            return MemberDAO.Instance.GetMemberList();
         }
 
-        public void Remove(string cs, int memberId)
+        public IEnumerable<TblMember> GetMembersListByUser(int memberId)
         {
-            MemberDAO.Instance.Remove(cs, memberId);
+            return MemberDAO.Instance.GetMemberListByUser(memberId);
         }
 
-        public IEnumerable<TblMember> SearchMembers(string cs, int id)
+        public void Remove(int memberId)
         {
-            return MemberDAO.Instance.SearchMembers(cs, id);
+            MemberDAO.Instance.Remove(memberId);
         }
 
-
-        public void Update(string cs, TblMember member)
+        public void Update(TblMember member)
         {
-            MemberDAO.Instance.Update(cs, member);
+            MemberDAO.Instance.Update(member);
         }
     }
 }

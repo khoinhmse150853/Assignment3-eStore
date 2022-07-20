@@ -1,5 +1,7 @@
 ﻿using BusinessObject;
 using DataAccess.Repository;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -13,26 +15,26 @@ namespace eStore.Controllers
     public class MemberController : Controller
     {
         IMemberRepository memberRepository;
-
-        private string GetConnectionString()
-        {
-            IConfiguration config = new ConfigurationBuilder()
-                                    .SetBasePath(Directory.GetCurrentDirectory())
-                                    .AddJsonFile("appsettings.json", true, true)
-                                    .Build();
-            var strConn = config["ConnectionStrings:SalesManagementDB"];
-            return strConn;
-        }
-
-        // GET: ProductController
+        // GET: MemberController
         public ActionResult Index()
         {
             memberRepository = new MemberRepository();
-            var model = memberRepository.GetMembersList(GetConnectionString());
-            return View(model);
+            string role = HttpContext.Session.GetString("Role");
+            if (role.Equals("AD"))
+            {
+                var model = memberRepository.GetMembersList();
+                return View(model);
+            }
+            else
+            {
+                TblMember member = HttpContext.Session.GetComplexData<TblMember>("account");
+                var model = memberRepository.GetMembersListByUser(member.MemberId);
+                return View(model);
+            }
+
         }
 
-        // GET: ProductController/Details/5
+        // GET: MemberController/Details/5
         public ActionResult Details(int? id)
         {
             memberRepository = new MemberRepository();
@@ -40,7 +42,7 @@ namespace eStore.Controllers
             {
                 return NotFound();
             }
-            var member = memberRepository.GetMembersById(GetConnectionString(), id.Value);
+            var member = memberRepository.GetMembersById(id.Value);
             if (member == null)
             {
                 return NotFound();
@@ -48,48 +50,15 @@ namespace eStore.Controllers
             return View(member);
         }
 
-       /* public ActionResult Search(string? op, string? search)
-        {
-            memberRepository = new MemberRepository();
-            if (search == null || from == null || to == null)
-            {
-                return NotFound();
-            }
-            else
-            {
-                if (op.Equals("Search"))
-                {
-                    var member = memberRepository.SearchMembers(GetConnectionString(), search));
-                    if (member == null)
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        ViewBag.Search = search;
-                        ViewBag.From = from;
-                        ViewBag.To = to;
-                        return View("Index", member);
-                    }
-                }
-                else
-                {
-                    var member = memberRepository.GetMembersList(GetConnectionString());
-                    ViewBag.Search = "";
-                    ViewBag.From = "";
-                    ViewBag.To = "";
-                    return View("Index", member);
-                }
-            }
-        }*/
-
-        // GET: ProductController/Create
+        [Authorize(Roles = "Admin")]
+        // GET: MemberController/Create
         public ActionResult Create()
         {
             return View();
         }
 
-        // POST: ProductController/Create
+        [Authorize(Roles = "Admin")]
+        // POST: MemberController/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(TblMember member)
@@ -99,7 +68,7 @@ namespace eStore.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    memberRepository.AddNew(GetConnectionString(), member);
+                    memberRepository.AddNew(member);
                 }
                 return RedirectToAction(nameof(Index));
             }
@@ -110,7 +79,7 @@ namespace eStore.Controllers
             }
         }
 
-        // GET: ProductController/Edit/5
+        // GET: MemberController/Edit/5
         public ActionResult Edit(int? id)
         {
             memberRepository = new MemberRepository();
@@ -118,7 +87,7 @@ namespace eStore.Controllers
             {
                 return NotFound();
             }
-            var member = memberRepository.GetMembersById(GetConnectionString(), id.Value);
+            var member = memberRepository.GetMembersById(id.Value);
             if (member == null)
             {
                 return NotFound();
@@ -126,7 +95,7 @@ namespace eStore.Controllers
             return View(member);
         }
 
-        // POST: ProductController/Edit/5
+        // POST: MemberController/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit(int MemberId, TblMember member)
@@ -140,7 +109,7 @@ namespace eStore.Controllers
                 }
                 if (ModelState.IsValid)
                 {
-                    memberRepository.Update(GetConnectionString(), member);
+                    memberRepository.Update(member);
                 }
                 return RedirectToAction(nameof(Index));
             }
@@ -151,7 +120,8 @@ namespace eStore.Controllers
             }
         }
 
-        // GET: ProductController/Delete/5
+        // GET: MemberController/Delete/5
+        [Authorize(Roles = "Admin")]
         public ActionResult Delete(int? id)
         {
             memberRepository = new MemberRepository();
@@ -159,7 +129,7 @@ namespace eStore.Controllers
             {
                 return NotFound();
             }
-            var member = memberRepository.GetMembersById(GetConnectionString(), id.Value);
+            var member = memberRepository.GetMembersById(id.Value);
             if (member == null)
             {
                 return NotFound();
@@ -167,15 +137,16 @@ namespace eStore.Controllers
             return View(member);
         }
 
-        // POST: ProductController/Delete/5
+        // POST: MemberController/Delete/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public ActionResult Delete(int MemberId)
         {
             memberRepository = new MemberRepository();
             try
             {
-                memberRepository.Remove(GetConnectionString(), MemberId);
+                memberRepository.Remove(MemberId);
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
