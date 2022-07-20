@@ -1,4 +1,4 @@
-﻿@model BusinessObject.TblMember
+﻿@model BusinessObject.TblProduct
 
 @{
     ViewData["Title"] = "Detail";
@@ -8,31 +8,42 @@
 <h1>Detail</h1>
 
 <div>
-    <h4>TblMember</h4>
+    <h4>TblProduct</h4>
     <hr />
     <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.MemberId)
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.CategoryId)
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Email)
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.CategoryId)
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CompanyName)
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ProductName)
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.City)
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ProductName)
         </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Country)
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ProductWeight)
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.MemberPassword)
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.ProductWeight)
         </dd>
-        
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UnitPrice)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UnitPrice)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.UnitslnStock)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.UnitslnStock)
+        </dd>
     </dl>
 </div>
 <div>
-    <a asp-action="Edit" asp-route-id="@Model.MemberId">Edit</a> |
+    <a asp-action="Edit" asp-route-id="@Model.ProductId">Edit</a> |
     <a asp-action="Index">Back to List</a>
 </div>

@@ -11,7 +11,11 @@ namespace BusinessObject
         {
             TblOrders = new HashSet<TblOrder>();
         }
-
+        public TblMember(string email, string memberPassword)
+        {
+            Email = email;
+            MemberPassword = memberPassword;
+        }
         public int MemberId { get; set; }
         public string Email { get; set; }
         public string CompanyName { get; set; }
