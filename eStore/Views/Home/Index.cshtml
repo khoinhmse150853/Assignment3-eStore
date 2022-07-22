@@ -1,12 +1,17 @@
-﻿@{
+﻿@using BusinessObject;;
+@{
     ViewData["Title"] = "Home Page";
+    TblMember member = ViewBag.Member;
 }
 @using Microsoft.AspNetCore.Http
 @inject IHttpContextAccessor Accessor
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about  @Accessor.HttpContext.Session.GetString("Role").</p>
-</div>
+@{
+    <div class="text-center">
+        <h1 class="display-4">Welcome @ViewBag.Email</h1>
+        <p>Your role:  @Accessor.HttpContext.Session.GetString("Role").</p>
+    </div>
+}
+
 
 

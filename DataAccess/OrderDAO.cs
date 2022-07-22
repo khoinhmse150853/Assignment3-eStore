@@ -1,4 +1,5 @@
 ﻿using BusinessObject;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,12 +8,12 @@ using System.Threading.Tasks;
 
 namespace DataAccess
 {
-    public class ProductDAO
+    public class OrderDAO
     {
-        private static ProductDAO instance = null;
+        private static OrderDAO instance = null;
         private static object instanceLook = new object();
 
-        public static ProductDAO Instance
+        public static OrderDAO Instance
         {
             get
             {
@@ -20,87 +21,82 @@ namespace DataAccess
                 {
                     if (instance == null)
                     {
-                        instance = new ProductDAO();
+                        instance = new OrderDAO();
                     }
                     return instance;
                 }
             }
         }
 
-        public List<TblProduct> GetProductsList()
+        public List<TblOrder> GetOrdersList()
         {
-            using(var db = new SaleManagementContext(SaleManagementContext.GetConn))
+            using (var db = new SaleManagementContext(SaleManagementContext.GetConn))
             {
-                return db.TblProducts.ToList();
+                return db.TblOrders.Include(x => x.Member).ToList();
             }
         }
 
-        public TblProduct GetProductByID( int productId)
+        public List<TblOrder> GetOrdersListByMember(int memberId)
         {
-            TblProduct product = null;
+            using (var db = new SaleManagementContext(SaleManagementContext.GetConn))
+            {
+                return db.TblOrders.Include(x => x.Member).Where(o => o.MemberId == memberId).ToList();
+            }
+        }
+
+        public List<TblOrder> GetOrders(DateTime startDate, DateTime endDate)
+        {
+            List<TblOrder> orders = null;
+
             try
             {
                 using (var db = new SaleManagementContext(SaleManagementContext.GetConn))
                 {
-                    product = db.TblProducts.SingleOrDefault(p => p.ProductId == productId);
-                };
+                    orders = db.TblOrders.Where(or =>
+                        DateTime.Compare(or.OrderDate, startDate) >= 0 &&
+                        DateTime.Compare(or.OrderDate, endDate) <= 0).ToList();
+                }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
-            return product;
+
+            return orders;
         }
 
-        public List<TblProduct> SearchProductsByUnitPirce ( string name, int from, int to)
+        public TblOrder GetOrderById(int Id)
         {
-            List<TblProduct> products = null;
+            TblOrder order = null;
             try
             {
                 using (var db = new SaleManagementContext(SaleManagementContext.GetConn))
                 {
-                    products = db.TblProducts.Where(p => p.ProductName.Contains(name) && p.UnitPrice <= to && p.UnitPrice >= from).ToList();
+                    order = db.TblOrders.Include(x => x.Member).SingleOrDefault(p => p.OrderId == Id);
                 };
             }
             catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
-            return products;
+            return order;
         }
 
-        public List<TblProduct> SearchProductsByProductName(string name)
-        {
-            List<TblProduct> products = null;
-            try
-            {
-                using (var db = new SaleManagementContext(SaleManagementContext.GetConn))
-                {
-                    products = db.TblProducts.Where(p => p.ProductName.Contains(name)).ToList();
-                };
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-            return products;
-        }
-
-        public void Update( TblProduct product)
+        public void AddNew(TblOrder order)
         {
             try
             {
-                TblProduct _product = GetProductByID(product.ProductId);
+                TblOrder _order = GetOrderById(order.OrderId);
                 using (var db = new SaleManagementContext(SaleManagementContext.GetConn))
                 {
-                    if(_product != null)
+                    if (_order == null)
                     {
-                        db.TblProducts.Update(product);
+                        db.TblOrders.Add(order);
                         db.SaveChanges();
                     }
                     else
                     {
-                        throw new Exception("The product does not already exists");
+                        throw new Exception("The order ia already exists");
                     }
                 };
             }
@@ -110,21 +106,21 @@ namespace DataAccess
             }
         }
 
-        public void AddNew(TblProduct product)
+        public void Update(TblOrder order)
         {
             try
             {
-                TblProduct _product = GetProductByID(product.ProductId);
+                TblOrder _order = GetOrderById(order.OrderId);
                 using (var db = new SaleManagementContext(SaleManagementContext.GetConn))
                 {
-                    if (_product == null)
+                    if (_order != null)
                     {
-                        db.TblProducts.Add(product);
+                        db.TblOrders.Update(order);
                         db.SaveChanges();
                     }
                     else
                     {
-                        throw new Exception("The product ia already exists");
+                        throw new Exception("The order does not already exists");
                     }
                 };
             }
@@ -134,21 +130,21 @@ namespace DataAccess
             }
         }
 
-        public void Remove(int productId)
+        public void Remove(int orderId)
         {
             try
             {
-                TblProduct _product = GetProductByID(productId);
+                TblOrder _order = GetOrderById(orderId);
                 using (var db = new SaleManagementContext(SaleManagementContext.GetConn))
                 {
-                    if (_product != null)
+                    if (_order != null)
                     {
-                        db.TblProducts.Remove(_product);
+                        db.TblOrders.Remove(_order);
                         db.SaveChanges();
                     }
                     else
                     {
-                        throw new Exception("The product does not already exists");
+                        throw new Exception("The order does not already exists");
                     }
                 };
             }

@@ -2,6 +2,7 @@
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var returnUrl = ViewData["ReturnUrl"] as string;
 }
 
 
@@ -9,7 +10,7 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form method="POST" action="Login">
+        <form method="POST" action="Login?ReturnUrl=@System.Net.WebUtility.UrlEncode(returnUrl)">
             <div class="form-group">
                 <label for="email" class="control-label">Email</label>
                 <input id="email" name="email" type="email" class="form-control" value="@ViewBag.Email" required />

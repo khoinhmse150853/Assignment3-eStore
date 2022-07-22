@@ -1,6 +1,4 @@
 ﻿@model IEnumerable<BusinessObject.TblProduct>
-@using Microsoft.AspNetCore.Http
-@inject IHttpContextAccessor Accessor
 
 @{
     ViewData["Title"] = "Index";
@@ -9,14 +7,10 @@
 
 <h1 class="mt-3 mb-5">List of products</h1>
 
-@{
-    if (@Accessor.HttpContext.Session.GetString("Role") == "AD")
-    {
-        <p class="mb-5">
-            <button type="button" class="btn btn-outline-primary"><a asp-action="Create">Create New</a></button>
-        </p>
-    }
-}
+
+<p class="mb-5">
+    <button type="button" class="btn btn-outline-primary"><a asp-action="Create">Create New</a></button>
+</p>
 
 
 <form asp-action="Search" asp-controller="Product" method="get" class="mb-5">
@@ -41,7 +35,7 @@
                             <label for="form" class="d-inline mt-1">From</label>
                         </div>
                         <div class="col-md-10">
-                            <input id="from" name="from" aria-describedby="unitPriceHelp" class="d-inline form-control" value="@ViewBag.From" type="number" required />
+                            <input id="from" name="from" aria-describedby="unitPriceHelp" class="d-inline form-control" value="@ViewBag.From" type="number" />
                         </div>
                     </div>
                 </div>
@@ -51,7 +45,7 @@
                             <label for="to" class="d-inline mt-1">To</label>
                         </div>
                         <div class="col-md-10">
-                            <input id="to" name="to" class="d-block form-control" value="@ViewBag.To" type="number" required />
+                            <input id="to" name="to" class="d-block form-control" value="@ViewBag.To" type="number" />
                         </div>
                     </div>
                 </div>
@@ -108,20 +102,9 @@
                     @Html.DisplayFor(modelItem => item.UnitslnStock)
                 </td>
                 <td>
-                    @{
-                        if (@Accessor.HttpContext.Session.GetString("Role") == "AD")
-                        {
-                            <a asp-action="Edit" asp-route-id="@item.ProductId">Edit</a>
-                        }
-                    }
-
+                    <a asp-action="Edit" asp-route-id="@item.ProductId">Edit</a>
                     | <a asp-action="Details" asp-route-id="@item.ProductId">Details</a> |
-                    @{
-                        if (@Accessor.HttpContext.Session.GetString("Role") == "AD")
-                        {
-                            <a asp-action="Delete" asp-route-id="@item.ProductId">Delete</a>
-                        }
-                    }
+                    <a asp-action="Delete" asp-route-id="@item.ProductId">Delete</a>
                 </td>
             </tr>
         }

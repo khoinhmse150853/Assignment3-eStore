@@ -9,11 +9,12 @@ namespace DataAccess.Repository
 {
     public interface IProductRepository
     {
-        IEnumerable<TblProduct> GetProductsList(string cs);
-        TblProduct GetProductsById(string cs, int Id);
-        IEnumerable<TblProduct> SearchProducts(string cs, string name, int from, int to);
-        void Update(string cs, TblProduct product);
-        void AddNew(string cs, TblProduct product);
-        void Remove(string cs, int productId);
+        IEnumerable<TblProduct> GetProductsList();
+        TblProduct GetProductsById(int Id);
+        IEnumerable<TblProduct> SearchProductsByUnitPrice(string name, int from, int to);
+        IEnumerable<TblProduct> SearchProductsByProductName(string name);
+        void Update(TblProduct product);
+        void AddNew(TblProduct product);
+        void Remove(int productId);
     }
 }
